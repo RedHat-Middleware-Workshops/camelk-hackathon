@@ -1,3 +1,3 @@
 # Lab documentation
 
-Start here:  [Introduction)](./docs/gfm/intro.md)
+Start here:  [Introduction](./docs/gfm/intro.md)
