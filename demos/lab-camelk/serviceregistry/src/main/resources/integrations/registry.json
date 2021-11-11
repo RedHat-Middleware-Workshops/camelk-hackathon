@@ -1,0 +1,8 @@
+{
+    "services": [
+        {
+            "name": "demo",
+            "description": "Demo service to showcase the Registry Service."
+        }
+    ]
+}

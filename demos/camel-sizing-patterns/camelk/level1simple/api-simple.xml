@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- camel-k: language=xml dependency=camel-quarkus-openapi-java dependency=mvn:xalan:xalan:2.7.1 -->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://camel.apache.org/schema/spring"
+        xsi:schemaLocation="
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<!-- Write your routes here, for example: -->
+    <route id="xml">
+
+      <from uri="direct:getDetails"/>
+
+      <!-- REQUEST TRANSFORMATION -->
+      <to uri="atlasmap:{{api.resources}}/request.adm"/>
+
+      <!-- CALL to BACKEND -->
+      <removeHeaders pattern="*"/>
+      <setHeader name="Exchange.HTTP_METHOD">
+        <constant>POST</constant>
+      </setHeader>
+      <setHeader name="Exchange.CONTENT_TYPE">
+        <constant>application/xml</constant>
+      </setHeader>
+      <to uri="http:{{api.backend1.host}}/camel/subscriber/details"/>
+
+      <!-- RESPONSE TRANSFORMATION -->
+      <to uri="atlasmap:{{api.resources}}/response.adm"/>
+
+    </route>
+
+</routes>

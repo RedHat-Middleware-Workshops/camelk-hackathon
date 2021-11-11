@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- camel-k: language=xml dependency=camel-quarkus-openapi-java dependency=mvn:xalan:xalan:2.7.1 -->
+
+<rests xmlns="http://camel.apache.org/schema/spring">
+    <rest>
+        <get id="api"
+             uri="/openapi.json"
+             produces="application/json">
+          <to uri="language:constant:resource:{{api.resources}}/openapi.json"/>
+        </get>
+    </rest>
+</rests>

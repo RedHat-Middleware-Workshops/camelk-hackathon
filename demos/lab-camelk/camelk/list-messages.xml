@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://camel.apache.org/schema/spring"
+        xsi:schemaLocation="
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+    <route>
+
+      <!-- <from uri="kafka:bruno-test?brokers=172.30.231.119:9092&amp;seekTo=beginning"/> -->
+      <from uri="kafka:bruno-test?brokers=my-cluster-kafka-brokers.openshift-operators.svc:9092&amp;seekTo=beginning"/>
+      <log message="from kafka: ${body}"/>
+
+    </route>
+     
+ 
+</routes>
+

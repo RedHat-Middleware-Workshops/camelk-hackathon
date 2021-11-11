@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes id="routes-1"
+    xmlns="http://camel.apache.org/schema/spring"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <route id="pdf-converter">
+        <from id="_from1" uri="direct:pdf-converter"/>
+
+        <setProperty propertyName="filename">
+            <simple>${body.filename}.pdf</simple>
+        </setProperty>
+        <setBody>
+            <simple>${body.content}</simple>
+        </setBody>
+
+        <removeHeaders pattern="*"/>
+        <log message="generating PDF..."/>
+        <to uri="pdf:create"/>
+
+        <setHeader headerName="filename">
+            <simple>${property.filename}</simple>
+        </setHeader>
+
+        <log message="(header) filename: ${header.filename}"/>
+
+    </route>
+</routes>

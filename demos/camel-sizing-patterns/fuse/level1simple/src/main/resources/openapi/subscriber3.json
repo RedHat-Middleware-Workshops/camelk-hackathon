@@ -1,0 +1,94 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Subscriber",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/subscriber/details": {
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Subscriber"
+                            },
+                            "examples": {
+                                "getSubscriberDetails": {
+                                    "value": {
+                                        "id": "123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SubscriberDetails"
+                                },
+                                "examples": {
+                                    "sample subscriber": {
+                                        "value": {
+                                            "fullName": "some text",
+                                            "addressLine1": "some text",
+                                            "addressLine2": "some text",
+                                            "addressLine3": "some text"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "subscriber details"
+                    }
+                },
+                "operationId": "getDetails"
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SubscriberDetails": {
+                "title": "Root Type for SubscriberDetails",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "addressLine1": {
+                        "type": "string"
+                    },
+                    "addressLine2": {
+                        "type": "string"
+                    },
+                    "addressLine3": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "fullName": "Some One",
+                    "addressLine1": "1 Some Street",
+                    "addressLine2": "Somewhere SOME C0D3",
+                    "addressLine3": "UK"
+                }
+            },
+            "Subscriber": {
+                "title": "Root Type for Subscriber",
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "id": "some id"
+                }
+            }
+        }
+    }
+}

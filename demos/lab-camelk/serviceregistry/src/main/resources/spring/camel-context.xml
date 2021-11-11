@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <!-- No-operation verifier (don't check Documentum's certificate) -->
+  <!-- <bean id="hostnameVerifier" class="org.apache.http.conn.ssl.NoopHostnameVerifier"/> -->
+  <bean id="hostnameVerifier" class="org.apache.http.conn.ssl.AllowAllHostnameVerifier"/>
+
+
+  <!-- Documentum SSL context -->
+  <camel:sslContextParameters id="sslContextParameters">
+    <camel:keyManagers keyPassword="redhat">
+      <camel:keyStore
+        resource="config/certificates/client/keystore-empty.jks"
+        password="redhat"/>
+    </camel:keyManagers>
+    <camel:trustManagers>
+      <camel:keyStore
+        resource="config/certificates/client/truststore.jks"
+        password="redhat"/>
+    </camel:trustManagers>
+  </camel:sslContextParameters>
+
+<bean id="myHttpClientConfigurer"
+ class="org.demo.HttpClientConfigurerTrustAllCACerts">
+</bean>
+
+
+  <!-- Helper classes  -->
+  <bean id="helper" class="org.demo.Helper"/>
+
+
+  <!-- Define a traditional camel context here -->
+  <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+
+
+
+        <dataFormats>
+            <!-- and this one uses our own TestPojo class as unmarshal type -->
+            <json id="pojo" library="Jackson" unmarshalTypeName="org.demo.camelk.Integration"/>
+
+        </dataFormats>
+
+
+<!--         <onException>
+            <exception>java.lang.Exception</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+            <log message="execution ended: ${exception.message}"/>
+            <setBody>
+              <simple>{&quot;message&quot;:&quot;${exception.message}&quot;}</simple>
+            </setBody>
+        </onException>
+ -->
+    <!-- REST configuration -->
+    <restConfiguration
+      apiContextPath="api-docs"
+      component="servlet"
+      contextPath="camel"
+      enableCORS="true"
+      port="{{camelrest.port}}"
+      host="{{camelrest.host}}">
+        <!-- Property to enable Streaming (Only works with Undertow) -->
+        <endpointProperty key="disableStreamCache" value="true"/>
+        <apiProperty key="cors" value="true"/>
+        <apiProperty key="api.title" value="Service Registry REST APIs"/>
+        <apiProperty key="api.version" value="1.0.0"/>
+    </restConfiguration>
+
+
+
+
+    <!-- Document API -->
+    <rest path="/services">
+
+        <!-- test endpoint for 3Scale and OCP health probe -->
+<!--         <get produces="application/json" uri="/test">
+            <description>Test service</description>
+            <to uri="direct:test"/>
+        </get> -->
+
+        <post produces="application/json" uri="/register">
+            <description>Registers new CamelK integration</description>
+            <to uri="direct:register"/>
+        </post>
+
+        <get produces="application/json" uri="/list">
+            <description>list available services</description>
+            <to uri="direct:list-services"/>
+        </get>
+
+        <get produces="application/json" uri="/subscribe/{user-id}/{service}">
+            <description>Subscribes the user to the service</description>
+            <to uri="direct:stream-service"/>
+        </get>
+
+        <get produces="application/json" uri="/unsubscribe/{user-id}/{service}">
+            <description>Unsubscribes the user from the service</description>
+            <to uri="direct:stop-service"/>
+        </get>
+
+<!--         <get produces="application/json" uri="/currency/gpb-eur/{user-id}">
+            <description>GBP-EUR stream</description>
+            <to uri="direct:stream-gbp-eur"/>
+        </get>
+
+        <get produces="application/json" uri="/integration">
+            <description>create integration</description>
+            <to uri="direct:integration"/>
+        </get> -->
+    </rest>
+
+
+
+
+
+    <!-- route to probe Fuse from 3Scale and OpenShift -->
+    <route id="test">
+        <from uri="direct:test"/>
+        <log message="test for 3Scale incoming: ${body}"/>
+        <bean ref="helper" method="setAck"/>
+        <log message=">>> ${body}"/>
+    </route>
+
+
+    <!-- Main route -->
+    <route id="register">
+      <from uri="direct:register"/>
+      <convertBodyTo type="String"/>
+      <to uri="log:debug?showAll=true"/>
+      <setProperty propertyName="integration">
+        <simple>${body}</simple>
+      </setProperty>
+      <setBody>
+        <simple>${header.service}</simple>
+      </setBody>
+      <log message="${body}"/>
+      <to uri="dataformat:json-jackson:unmarshal"/>
+<!--       <log message="service: ${body.get('name')}"/>
+      <log message="service: ${body.get('description')}"/>
+      <log message="content: ${property.integration}"/>
+ -->
+      <bean ref="helper" method="addService(${body},${property.integration})"/>
+
+      <!-- <log message="content: ${body.get('content')}"/> -->
+      <!-- <to uri="language:constant:resource:classpath:integrations/registry.json"/> -->
+      <!-- <bean ref="helper" method="getRegistry"/> -->
+      <!-- <to uri="dataformat:json-jackson:marshal"/> -->
+    </route>
+
+
+    <!-- Main route -->
+    <route id="list-services">
+      <from uri="direct:list-services"/>
+      <!-- <to uri="language:constant:resource:classpath:integrations/registry.json"/> -->
+      <bean ref="helper" method="getRegistry"/>
+      <to uri="dataformat:json-jackson:marshal"/>
+      <bean ref="helper" method="printIntegrations"/>
+
+    </route>
+
+
+    <!-- Main route -->
+    <route id="init">
+      <from uri="timer:init?repeatCount=1&amp;delay=0"/>
+      <!-- <to uri="language:constant:resource:classpath:integrations/registry.json"/> -->
+      <to uri="language:constant:resource:{{integrations.folder}}"/>
+      <to uri="dataformat:json-jackson:unmarshal"/>
+      <log message="registry: ${body}"/>
+      <bean ref="helper" method="setRegistry(${body})"/>
+      <log message="registry: ${body.get('services').get(0)}"/>
+
+      <bean ref="helper" method="loadIntegrations"/>
+
+
+    </route>
+
+
+
+
+<!-- DELETE https://api.cluster-madrid-c0e3.madrid-c0e3.openshiftworkshop.com:6443/apis/camel.apache.org/v1alpha1/namespaces/demo-bruno/integrations/int-gbp-eur-user2-id -->
+
+    <!-- Main route -->
+    <route id="stop-service">
+      <from uri="direct:stop-service"/>
+
+      <setProperty propertyName="integration-id">
+        <simple>int-${header.service}-${header.user-id}-id</simple>
+      </setProperty>
+
+      <log message="deleting integration [${property.integration-id}]... invoking OCP API"/>
+
+
+      <removeHeaders pattern="*"/>
+
+      <setHeader headerName="CamelHttpMethod">
+        <simple>DELETE</simple>
+      </setHeader>
+
+      <setHeader headerName="Authorization">
+        <simple>Bearer {{serviceaccount.camelk.token}}</simple>
+      </setHeader>
+
+      <!-- <log message="AllowAllHostnameVerifier endpoint is: {{camel.endpoint.ocp.api}}"/> -->
+
+      <setHeader headerName="CamelHttpPath">
+        <!-- <simple>/apis/camel.apache.org/v1alpha1/namespaces/demo-bruno/integrations/int-${header.service}-${header.user-id}-id</simple> -->
+        <simple>/${property.integration-id}</simple>
+      </setHeader>
+
+      <to uri="{{camel.endpoint.ocp.api}}"/>
+      <convertBodyTo type="String"/>
+
+      <log message="response is: ${body}"/>
+
+    </route>
+
+
+    <!-- Main route -->
+    <route id="stream-service">
+      <from uri="direct:stream-service"/>
+
+      <log message="requested service [${header.service}]"/>
+
+
+      <!-- <to uri="language:constant:resource:classpath:integrations/registry.json"/> -->
+
+
+      <doTry>
+
+
+<log message="trace 1"/>
+
+        <enrich>
+          <simple>bean:helper?method=getIntegration(${header.service})</simple>
+          <!-- <simple>language:simple:resource:classpath:integrations/camelk/${header.service}.xml</simple> -->
+
+        </enrich>
+
+<log message="trace 2"/>
+
+        <setProperty propertyName="integration.code">
+          <simple>${body}</simple>
+        </setProperty>
+
+<log message="trace 3"/>
+
+        <doCatch>
+            <exception>java.lang.Exception</exception>
+      <log message="exception [${exception.stacktrace}]"/>
+
+            <throwException exceptionType="java.lang.Exception" message="service not available"/>
+          </doCatch>
+      </doTry>
+      
+        <to uri="language:constant:resource:classpath:schema/crd/integration.json"/>
+
+      <unmarshal><custom ref="pojo"/></unmarshal>
+
+      <bean ref="helper" method="setIntegration"/>
+
+      <to uri="dataformat:json-jackson:marshal?prettyPrint=true"/>
+
+      <to uri="direct:run-it"/>
+
+
+    </route>
+
+
+    <!-- Main route -->
+    <route id="integration">
+      <from uri="direct:integration"/>
+
+      <setProperty propertyName="integration.code">
+        <simple>resource:classpath:integrations/demo-service.xml</simple>
+      </setProperty>
+
+      <to uri="language:constant:resource:classpath:schema/crd/integration.json"/>
+
+
+      <unmarshal><custom ref="pojo"/></unmarshal>
+      <!-- <to uri="dataformat:json-jackson:unmarshal?unmarshalTypeName=org.demo.camelk.Integration"/> -->
+
+      <log message="unmarshalled >>> ${body}"/>
+      <log message="unmarshalled >>> ${body.class.name}"/>
+
+
+      <!-- <bean ref="helper" method="setIntegration"/> -->
+      <bean ref="helper" method="setIntegration"/>
+
+      <to uri="dataformat:json-jackson:marshal?prettyPrint=true"/>
+      
+      <log message=">>> ${body}"/>
+
+      <!-- <to uri="direct:run-it"/> -->
+    </route>
+
+
+
+
+    <!-- Main route -->
+    <route id="stream-gbp-eur">
+      <from uri="direct:stream-gbp-eur"/>
+<!--       <setBody>
+        <simple>hello</simple>
+      </setBody> -->
+
+      <log message="got request... invoking OCP API"/>
+
+
+      <removeHeaders pattern="*"/>
+
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+
+      <setHeader headerName="Authorization">
+        <simple>Bearer {{serviceaccount.camelk.token}}</simple>
+      </setHeader>
+
+      <log message="AllowAllHostnameVerifier endpoint is: {{camel.endpoint.ocp.api}}"/>
+
+
+      <to uri="{{camel.endpoint.ocp.api}}"/>
+      <convertBodyTo type="String"/>
+
+      <log message="response is: ${body}"/>
+
+
+      <!-- <bean ref="helper" method="subscribe"/> -->
+      <!-- <to uri="controlbus:route?routeId=kafka-sim&amp;action=start" /> -->
+    </route>
+
+
+
+    <!-- Main route -->
+    <route id="run-it">
+      <from uri="direct:run-it"/>
+<!--       <setBody>
+        <simple>hello</simple>
+      </setBody> -->
+
+      <log message="running integration... invoking API"/>
+
+
+      <removeHeaders pattern="*"/>
+
+      <setHeader headerName="CamelHttpMethod">
+        <simple>POST</simple>
+      </setHeader>
+
+      <setHeader headerName="Authorization">
+        <simple>Bearer {{serviceaccount.camelk.token}}</simple>
+      </setHeader>
+
+      <log message="AllowAllHostnameVerifier endpoint is: {{camel.endpoint.ocp.api}}"/>
+
+
+      <to uri="{{camel.endpoint.ocp.api}}"/>
+      <convertBodyTo type="String"/>
+
+      <log message="response is: ${body}"/>
+
+
+      <!-- <bean ref="helper" method="subscribe"/> -->
+      <!-- <to uri="controlbus:route?routeId=kafka-sim&amp;action=start" /> -->
+    </route>
+
+
+  </camelContext>
+
+</beans>

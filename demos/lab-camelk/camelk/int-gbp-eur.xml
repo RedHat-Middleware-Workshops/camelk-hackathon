@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://camel.apache.org/schema/spring"
+        xsi:schemaLocation="
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+<!--     <route>
+      <from uri="kafka:bruno-test?brokers=172.30.231.119:9092&amp;seekTo=beginning"/>
+      <log message="from kafka: ${body}"/>
+    </route> -->
+     
+
+<!--     <route>
+      <from uri="timer:tick"/>
+      <setBody>
+        <constant>dummy</constant> 
+      </setBody> 
+      <to uri="kafka:bruno-test?brokers=172.30.231.119:9092"/>
+    </route> -->
+
+<!--     <route>
+      <from uri="timer:trigger?repeatCount=1"/>
+
+      <setHeader headerName="id">
+        <simple>anid</simple>
+      </setHeader>
+      <setHeader headerName="payload">
+        <simple>apayload</simple>
+      </setHeader>
+
+      <choice>
+        <when>
+          <simple>${header.CamelTimerCounter} == 5</simple>
+          <setHeader headerName="last">
+            <simple>true</simple>
+          </setHeader>
+        </when>
+        <otherwise>
+          <setHeader headerName="last">
+            <simple>false</simple>
+          </setHeader>
+        </otherwise>
+      </choice>
+
+
+      <setBody>
+        <simple>{"id":"${header.id}","last":"${header.last}","payload":"${header.payload}"}</simple>
+      </setBody>
+      <to uri="kafka:bruno-test?brokers=172.30.231.119:9092"/>
+
+    </route> -->
+ 
+
+    <route>
+      <from uri="timer:trigger?repeatCount=1"/>
+
+      <!-- for visual validation -->
+      <log message="Integration Started for client [{{client.id}}]"/>
+
+      <!-- prepare outbound call -->
+      <!-- <removeHeaders pattern="*"/> -->
+      <setHeader headerName="CamelHttpMethod">
+        <constant>GET</constant>
+      </setHeader>
+
+      <!-- ensure the parameter 'size' is passed through -->
+      <setHeader headerName="CamelHttpPath">
+        <simple>/camel/currency/gbp-eur</simple>
+      </setHeader>
+
+      <!-- <to uri="https4:currency-app:8080?disableStreamCache=true"/> -->
+      <!-- <to uri="http4:172.30.216.168:8080?disableStreamCache=true"/> -->
+      <to uri="http4:currency-app:8080?disableStreamCache=true"/>
+
+
+
+<!--       <setBody>
+        <simple>line1\nline2\nline3</simple>
+      </setBody> -->
+
+      <log message="done calling server"/>
+      
+      <!-- <to uri="stream:out?groupLines=1"/> -->
+      <!-- <split streaming="true"> <tokenize token="\n" group="1000"/> <to uri="activemq:queue:order"/> </split> -->
+      <split streaming="true" stopOnException="true">
+        <tokenize token="\n"/>
+        <log message="got token: ${body}"/>
+        <!-- <when> -->
+          <!-- <simple>${property.CamelSplitIndex} == 3</simple> -->
+          <!-- <throwException exception="Exception"/> -->
+        <!-- <log message="stopping..."/> -->
+               <!-- <throwException exceptionType="java.lang.InterruptedException" message="got to limit"/> -->
+
+
+
+        <!-- </when> -->
+
+
+
+      <setHeader headerName="id">
+        <simple>{{client.id}}</simple>
+      </setHeader>
+<!--       <setHeader headerName="payload">
+        <simple>apayload</simple>
+      </setHeader> -->
+
+      <choice>
+        <when>
+          <simple>${property.CamelSplitIndex} == 10</simple>
+          <setHeader headerName="last">
+            <simple>true</simple>
+          </setHeader>
+        </when>
+        <otherwise>
+          <setHeader headerName="last">
+            <simple>false</simple>
+          </setHeader>
+        </otherwise>
+      </choice>
+
+
+      <setBody>
+        <simple>{"id":"${header.id}","last":"${header.last}","payload":"${body}"}</simple>
+      </setBody>
+<!--       <to uri="kafka:bruno-test?brokers=172.30.231.119:9092"/>
+
+
+        <when>
+          <simple>${header.last} == true</simple>
+          <log message="stopping..."/>
+          <throwException exceptionType="java.lang.InterruptedException" message="got to limit"/>
+        </when> -->
+
+
+      </split>
+
+        <log message="end of split"/>
+
+    </route>
+
+
+
+    <!-- Main route -->
+    <route id="self-destroy">
+      <from uri="timer:self-destroy?delay=60000&amp;repeatCount=1"/>
+
+      <log message="about to send destroy signal..."/>
+
+      <removeHeaders pattern="*"/>
+
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+
+
+      <!-- <to uri="http4:serviceregistry-app:8080/camel/services/unsubscribe/{{client.id}}/gbp-eur?disableStreamCache=true"/> -->
+
+      <!-- <convertBodyTo type="String"/> -->
+
+      <!-- <log message="response is: ${body}"/> -->
+
+    </route>
+
+</routes>
+

@@ -1,0 +1,12 @@
+{
+    "services": [
+        {
+            "name": "demo",
+            "description": "Demo service to showcase the Registry Service."
+        },
+        {
+            "name": "gbp-eur",
+            "description": "Demo exchange rate for currencies GBP-EUR"
+        }
+    ]
+}

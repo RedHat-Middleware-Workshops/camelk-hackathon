@@ -1,0 +1,48 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "A brand new API with no content.  Go nuts!",
+    "version" : "1.0",
+    "title" : "PDF Service"
+  },
+  "schemes" : [ "http" ],
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "paths" : {
+    "/add" : {
+      "post" : {
+        "description" : "adds a document",
+        "operationId" : "addDocument",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/Document"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "document added"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "Document" : {
+      "type" : "object",
+      "properties" : {
+        "docName" : {
+          "type" : "string"
+        },
+        "docContent" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Root Type for Document",
+      "description" : "a document",
+      "example" : "{\n    \"docName\":\"sampleName\",\n    \"docContent\":\"sample document content\"\n}"
+    }
+  }
+}

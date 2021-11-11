@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://camel.apache.org/schema/spring"
+        xsi:schemaLocation="
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+    <route>
+<!-- my-cluster-kafka-bootstrap.bruno-kafka.svc -->
+      <!-- <from uri="kafka:bruno-test?brokers=172.30.210.215:9092&amp;seekTo=beginning"/> -->
+      <from uri="kafka:bruno-test?brokers=my-cluster-kafka-brokers.openshift-operators.svc:9092&amp;seekTo=beginning"/>
+      <log message="from kafka: ${body}"/>
+      <!-- <log message="headers: ${header.kafka.HEADERS.class.name}"/> -->
+
+    </route>
+     
+
+<!--     <route>
+      <from uri="timer:tick"/>
+      <setBody>
+        <constant>dummy</constant> 
+      </setBody> 
+      <to uri="kafka:bruno-test?brokers=172.30.231.119:9092"/>
+    </route> -->
+
+    <route>
+      <from uri="timer:tick?repeatCount=5"/>
+      <setHeader headerName="id">
+        <simple>anid</simple>
+      </setHeader>
+      <setHeader headerName="payload">
+        <simple>apayload</simple>
+      </setHeader>
+
+      <choice>
+        <when>
+          <simple>${header.CamelTimerCounter} == 5</simple>
+          <setHeader headerName="last">
+            <simple>true</simple>
+          </setHeader>
+        </when>
+        <otherwise>
+          <setHeader headerName="last">
+            <simple>false</simple>
+          </setHeader>
+        </otherwise>
+      </choice>
+
+
+      <setBody>
+        <simple>{"id":"${header.id}","last":"${header.last}","payload":"${header.payload}"}</simple>
+      </setBody>
+
+      <log message="about to send message..."/>
+
+      <!-- <to uri="kafka:bruno-test?brokers=172.30.210.215:9092"/> -->
+      <to uri="kafka:bruno-test?brokers=my-cluster-kafka-brokers.openshift-operators.svc:9092"/>
+
+      
+      <!-- <log message="class: ${header.test.getClass.getName}"/> -->
+<!--       <log message="message is: ${body}"/>
+      <to uri="dataformat:json-jackson:unmarshal"/>
+      <log message="id is: ${body.get('id')}"/>
+ -->
+    </route>
+ 
+</routes>
+

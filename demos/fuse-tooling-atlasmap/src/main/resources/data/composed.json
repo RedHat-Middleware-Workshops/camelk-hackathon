@@ -1,0 +1,15 @@
+{
+    "SubscriberDetails": {
+      "customer": "",
+      "email": "",
+      "Package": {
+        "uid": "",
+        "expiry": "",
+        "name": ""
+      },
+      "Renewal": {
+        "length": "",
+        "discount": ""
+      }
+    }
+  }

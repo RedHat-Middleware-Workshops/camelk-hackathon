@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext id="context-777ad85d-ba7b-4aec-b849-6871cb06bd98" xmlns="http://camel.apache.org/schema/spring">
+
+        <onException>
+            <exception>java.lang.Exception</exception>
+            <handled><constant>true</constant></handled>
+            <setHeader headerName="Exchange.HTTP_RESPONSE_CODE">
+                <constant>500</constant>
+            </setHeader>
+            <setBody>
+                <simple>${exception.message}</simple>
+            </setBody>
+        </onException>
+
+        <restConfiguration component="servlet" apiContextPath="/openapi.json"/>
+
+        <rest id="rest-for-openapi-document" path="/" enableCORS="true">
+            <get id="openapi.json" produces="application/json" uri="openapi.json">
+                <description>Gets the OpenAPI document for this service</description>
+                <route id="route-for-openapi-document">
+                    <setHeader id="setHeader-for-openapi-document" headerName="Exchange.CONTENT_TYPE">
+                        <constant>application/vnd.oai.openapi+json</constant>
+                    </setHeader>
+                    <setBody id="setBody-for-openapi-document">
+                        <constant>resource:classpath:openapi.json</constant>
+                    </setBody>
+                </route>
+            </get>
+        </rest>
+
+        <rest bindingMode="json" enableCORS="true" id="rest-0c1994cf-48bd-478c-8be1-b6a251695a01">
+            <post id="addDocument" uri="/add">
+                <description>adds a document</description>
+                <param name="body" required="false" type="body"/>
+                <to uri="direct:addDocument"/>
+            </post>
+        </rest>
+
+        <route id="route-f15cb719-4287-456b-a327-b7d6bdde70c2">
+            <from id="from-25444a4c-8645-4773-9007-cb620e4a375b" uri="direct:addDocument"/>
+
+            <log message="got request"/>
+
+            <setHeader headerName="CamelFileName">
+                <simple>${body.get('docName')}.pdf</simple>
+            </setHeader>
+
+            <setBody>
+                <simple>${body.get('docContent')}</simple>
+            </setBody>
+
+            <to uri="pdf:create"/>
+
+            <to uri="ftp://ftpupload.net:21//htdocs/demo-fuse?passiveMode=true&amp;password=auZFRv8RAoC&amp;username=epiz_24054571"/>
+
+            <setBody>
+                <simple>done</simple>
+            </setBody>
+
+        </route>
+
+        <route id="route-for-unimplemented-operations">
+            <from id="from-for-unimplemented-operations-route" uri="direct:501"/>
+            <log id="log-for-unimplemented-operations-route" message="API operation not yet implemented: ${headers.CamelHttpMethod} ${headers.CamelHttpPath}"/>
+            <setHeader id="setHeader-for-unimplemented-operations-route" headerName="Exchange.HTTP_RESPONSE_CODE">
+                <constant>501</constant>
+            </setHeader>
+            <setBody id="setBody-for-unimplemented-operations-route">
+                <simple>API operation not implemented: ${headers.CamelHttpMethod} ${headers.CamelHttpPath}</simple>
+            </setBody>
+        </route>
+
+    </camelContext>
+</beans>

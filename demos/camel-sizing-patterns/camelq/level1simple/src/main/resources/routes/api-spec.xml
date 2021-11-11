@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- <rests xmlns="http://camel.apache.org/schema/spring">
+    <rest>
+        <get id="api"
+             uri="/openapi.json"
+             produces="application/json">
+          <to uri="language:constant:resource:classpath:/api/openapi.json"/>
+        </get>
+    </rest>
+</rests> -->
+
+<rests xmlns="http://camel.apache.org/schema/spring">
+    <rest>
+        <get id="api"
+             uri="/openapi.json"
+             produces="application/json">
+          <to uri="language:constant:resource:classpath:/api/openapi.json"/>
+        </get>
+    </rest>
+
+    <rest>
+        <post consumes="application/json" id="getDetails"
+            produces="application/json"
+             uri="/subscriber/details">
+            <param description="request data" name="body"
+                required="true" type="body"/>
+            <to uri="direct:getDetails"/>
+        </post>
+    </rest>
+
+</rests>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://camel.apache.org/schema/spring"
+        xsi:schemaLocation="
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <route>
+    	<from uri="undertow:http://0.0.0.0:8080/add"/>
+
+        <log message="got request Camel K"/>
+
+		<to uri="dataformat:json-jackson:unmarshal"/>
+
+        <setHeader headerName="CamelFileName">
+            <simple>${body.get('docName')}.pdf</simple>
+        </setHeader>
+
+        <setBody>
+            <simple>${body.get('docContent')}</simple>
+        </setBody>
+
+        <to uri="pdf:create"/>
+
+        <to uri="ftp://ftpupload.net:21//htdocs/demo-camel-k?passiveMode=true&amp;password=auZFRv8RAoC&amp;username=epiz_24054571"/>
+
+        <setBody>
+            <simple>done</simple>
+        </setBody>
+    </route>
+
+
+</routes>
+

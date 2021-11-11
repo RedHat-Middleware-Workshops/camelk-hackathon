@@ -1,0 +1,11 @@
+run integration:
+================
+
+	command:
+
+		kamel run --name=int-gbp-eur-{user}-id int-gbp-eur.xml --dev --property client.id={user}
+
+
+	example:
+
+		kamel run --name=int-gbp-eur-user2-id int-gbp-eur.xml --dev --property client.id=user2

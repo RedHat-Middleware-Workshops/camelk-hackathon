@@ -1,0 +1,74 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Subscriber2",
+        "version": "1.0.0"
+    },
+    "basePath" : "/camel",
+    "schemes" : [ "http" ],
+    "paths": {
+        "/subscriber/details": {
+            "post": {
+                "parameters": [
+                    {
+                        "name": "body",
+                        "schema": {
+                            "$ref": "#/definitions/Subscriber"
+                        },
+                        "in": "body",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The response",
+                        "schema": {
+                            "$ref": "#/definitions/SubscriptionDetails"
+                        }
+                    }
+                },
+                "operationId": "getDetails"
+            }
+        }
+    },
+    "definitions": {
+        "Subscriber": {
+            "title": "Root Type for Subscriber",
+            "description": "",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "id": "123"
+            }
+        },
+        "SubscriptionDetails": {
+            "title": "Root Type for SubscriptionDetails",
+            "description": "",
+            "type": "object",
+            "properties": {
+                "fullName": {
+                    "type": "string"
+                },
+                "addressLine1": {
+                    "type": "string"
+                },
+                "addressLine2": {
+                    "type": "string"
+                },
+                "addressLine3": {
+                    "type": "string"
+                }
+            },
+            "example": {
+                "fullName": "Clint Eastwood",
+                "addressLine1": "1 Some Street",
+                "addressLine2": "Tabernas FAR WEST",
+                "addressLine3": "US"
+            }
+        }
+    }
+}

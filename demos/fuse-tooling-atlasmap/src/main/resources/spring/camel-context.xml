@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+  <bean id="helper" class="org.demo.Helper"/>
+
+  <!-- Define a traditional camel context here -->
+  <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+    <route>
+      <from uri="timer:simple?repeatCount=1"/>
+      <to uri="language:constant:resource:classpath:/data/individual.xml"/>
+      <to uri="atlas:map/simple-mapping.adm"/>
+      <log message="result is:\n ${body}"/>
+    </route>
+
+    <route>
+        <from uri="timer:composed?repeatCount=1"/>
+        <to uri="direct:call-system1"/>
+        <to uri="direct:call-system2"/>
+        <to uri="direct:call-system3"/>
+        <to uri="direct:map-response"/>
+    </route>
+
+    <route>
+      <from uri="direct:call-system1"/>
+      <to uri="language:constant:resource:classpath:/data/customer.json"/>
+      <setProperty propertyName="atlasmap-source-1">
+        <simple>${body}</simple>
+      </setProperty>
+    </route>
+
+    <route>
+        <from uri="direct:call-system2"/>
+        <to uri="language:constant:resource:classpath:/data/subscription.xml"/>
+        <setProperty propertyName="atlasmap-source-2">
+          <simple>${body}</simple>
+        </setProperty>
+    </route>
+
+    <route>
+        <from uri="direct:call-system3"/>
+        <to uri="language:constant:resource:classpath:/data/offer.xml"/>
+        <setProperty propertyName="atlasmap-source-3">
+          <simple>${body}</simple>
+        </setProperty>
+    </route>    
+
+
+    <route>
+      <from uri="direct:map-response"/>
+      <bean ref="helper" method="getMappingInputs"/>
+      <to uri="atlas:map/composed-mapping.adm"/>
+      <log message="result is:\n ${body}"></log>
+    </route>
+
+  </camelContext>
+
+</beans>

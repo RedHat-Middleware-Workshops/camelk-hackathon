@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rests xmlns="http://camel.apache.org/schema/spring">
+    <rest>
+        <post id="getDetails"
+              uri="/subscriber/details"
+              consumes="application/xml"
+              produces="application/xml">
+            
+            <param name="body" 
+                   type="body"
+                   required="true" 
+                   description="request data"/>
+                   
+            <to uri="language:constant:resource:classpath:response.xml"/>
+        </post>
+    </rest>
+</rests>

@@ -1,0 +1,22 @@
+{
+    "apiVersion": "camel.apache.org/v1",
+    "kind": "Integration",
+    "metadata": {
+        "generation": 1,
+        "name": "UNDEFINED"
+    },
+    "spec": {
+        "configuration": [
+            {
+                "type": "property",
+                "value": "UNDEFINED"
+            }
+        ],
+        "sources": [
+            {
+                "content": "UNDEFINED",
+                "name": "UNDEFINED"
+            }
+        ]
+    }
+}

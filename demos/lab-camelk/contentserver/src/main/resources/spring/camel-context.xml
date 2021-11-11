@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <!-- Helper classes  -->
+  <bean id="helper" class="org.demo.Helper"/>
+
+
+  <!-- Define a traditional camel context here -->
+  <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+
+
+
+<!--         <onException>
+            <exception>java.lang.Exception</exception>
+            <handled>
+                <constant>true</constant>
+            </handled>
+           <log message="execution ended: ${exception.message}"/>
+        </onException>
+ -->
+
+    <!-- REST configuration -->
+    <restConfiguration
+      apiContextPath="api-docs"
+      component="servlet"
+      contextPath="camel"
+      enableCORS="true"
+      port="{{camelrest.port}}"
+      host="{{camelrest.host}}">
+        <!-- Property to enable Streaming (Only works with Undertow) -->
+        <!-- <componentProperty key="bridgeErrorHandler" value="true"/> -->
+        <endpointProperty key="disableStreamCache" value="true"/>
+        <!-- <endpointProperty key="bridgeErrorHandler" value="true"/> -->
+        <!-- <consumerProperty key="bridgeErrorHandler" value="true"/> -->
+        <apiProperty key="cors" value="true"/>
+        <apiProperty key="api.title" value="Content Server REST APIs"/>
+        <apiProperty key="api.version" value="1.0.0"/>
+    </restConfiguration>
+
+
+
+
+    <!-- Document API -->
+    <rest path="/stream">
+
+        <!-- test endpoint for 3Scale and OCP health probe -->
+        <get produces="application/json" uri="/test">
+            <description>Test service</description>
+            <to uri="direct:test"/>
+        </get>
+
+
+        <get produces="application/json" uri="/currency/gpb-eur/{user-id}">
+            <description>GBP-EUR stream</description>
+            <to uri="direct:stream-gbp-eur"/>
+        </get>
+    </rest>
+
+
+    <!-- route to probe Fuse from 3Scale and OpenShift -->
+    <route id="test">
+        <from uri="direct:test"/>
+        <log message="test for 3Scale incoming: ${body}"/>
+        <bean ref="helper" method="setAck"/>
+        <log message=">>> ${body}"/>
+    </route>
+
+
+    <!-- Main route -->
+    <route id="stream-gbp-eur">
+      <from uri="direct:stream-gbp-eur"/>
+
+      <setProperty propertyName="user-id">
+        <simple>${header.user-id}</simple>
+      </setProperty>
+      
+      <to uri="direct:registry-subscribe"/>
+
+      <bean ref="helper" method="subscribe"/>
+      <!-- <to uri="controlbus:route?routeId=kafka-sim&amp;action=start" /> -->
+    </route>
+
+
+    <route id="registry-subscribe">
+      <from uri="direct:registry-subscribe"/>
+
+      <log message="about to send subscribe signal to registry..."/>
+
+      <removeHeaders pattern="*"/>
+
+      <setHeader headerName="CamelHttpMethod">
+        <simple>GET</simple>
+      </setHeader>
+
+
+      <toD uri="http4:serviceregistry:8080/camel/services/subscribe/${property.user-id}/gbp-eur?disableStreamCache=true"/>
+
+      <convertBodyTo type="String"/>
+
+      <log message="response is: ${body}"/>
+
+
+    </route>
+
+
+    <route id="events-ingress">
+      
+        <!-- Kafka simulator -->
+        <!-- <from uri="timer:tick"/> -->
+        <!-- <to uri="direct:sim-kafka-message"/> -->
+
+        <!-- Real Kafka -->
+        <from uri="kafka:{{kafka.topic}}?brokers={{kafka.host}}:9092&amp;seekTo=beginning"/>
+
+
+      <to uri="direct:message-processor"/>
+    </route>
+
+
+    <route id="message-processor">
+      <from uri="direct:message-processor"/>
+
+      <log message="Kafka message: ${body}"/>
+
+      <to uri="direct:parse-kafka-message"/>
+      <bean ref="helper" method="streamPrices"/>
+    </route>
+
+
+    <route id="parse-kafka-message">
+      <from uri="direct:parse-kafka-message"/>
+      <to uri="dataformat:json-jackson:unmarshal"/>
+      <setHeader headerName="id">
+        <simple>${body.get('id')}</simple>
+      </setHeader>
+      <setHeader headerName="last">
+        <simple>${body.get('last')}</simple>
+      </setHeader>
+      <setBody>
+        <simple>${body.get('payload')}</simple>
+      </setBody>
+    </route>
+
+
+    <route id="sim-kafka-message">
+      <from uri="direct:sim-kafka-message"/>
+
+      <setHeader headerName="simid">
+        <simple>user1</simple>
+      </setHeader>
+      <setHeader headerName="simpayload">
+        <simple>apayload</simple>
+      </setHeader>
+
+          <setHeader headerName="simlast">
+            <simple>bean:helper?method=isLast</simple>
+          </setHeader>
+
+
+      <setBody>
+        <simple>${header.payload}</simple>
+      </setBody>
+
+
+      <setBody>
+        <simple>{"id":"${header.simid}","last":"${header.simlast}","payload":"${header.simpayload}"}</simple>
+      </setBody>
+
+    </route>
+
+
+  </camelContext>
+
+</beans>
