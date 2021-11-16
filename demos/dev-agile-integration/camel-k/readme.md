@@ -28,13 +28,13 @@ To have Camel K up and running, follow the installation instructions here:
 
 1. Now complete the PDF service flow by copying the Camel definition from the Fuse demo. Everything remains as-is, except for the `from` element and a `dataformat` command. The route definition should initiate looking like:
     ```xml
-    <from uri="undertow:http://0.0.0.0:8080/add"/>
+    <from uri="platform-http:/add"/>
     <to uri="dataformat:json-jackson:unmarshal"/>
     ```
 
-1. Once the logic is completed, run the integration with the following command:
+1. Once the logic is completed, run the integration with the following command (explicit depencies are added as a temp fix, while new version of camel incorporates the fixes):
 
-        kamel run routes.xml --dev -d camel-jackson
+        kamel run routes.xml --dev -d camel-jackson -d camel-platform-http
 
 1. Once running, open a new terminal and fire a request with the following curl command:
 
