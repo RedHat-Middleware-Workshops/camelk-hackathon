@@ -7,13 +7,13 @@
             http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <route>
-    	<from uri="undertow:http://0.0.0.0:8080/add"/>
+    	<from uri="platform-http:/add"/>
 
         <log message="got request Camel K"/>
 
 		<to uri="dataformat:json-jackson:unmarshal"/>
 
-        <setHeader headerName="CamelFileName">
+        <setHeader name="CamelFileName">
             <simple>${body.get('docName')}.pdf</simple>
         </setHeader>
 
