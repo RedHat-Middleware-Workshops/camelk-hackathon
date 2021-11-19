@@ -23,6 +23,7 @@ Using Knative channel component to read from the channel
 
 https://www.nicolaferraro.me/2018/12/10/camel-k-on-knative/
 
+https://goois.net/6-serverless-integration-patterns-using-apache-camel-k-knative-cookbook.html 
 
 
 ## Other notes
