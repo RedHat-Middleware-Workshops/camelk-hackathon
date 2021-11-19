@@ -1,0 +1,26 @@
+apiVersion: camel.apache.org/v1alpha1
+kind: KameletBinding
+metadata:
+  name: message-bridge-binding
+  namespace: amq-message-bridge
+spec:
+  integration:
+    configuration:
+     - type: "secret"
+       value: "message-bridge-binding"   
+  source:
+    ref:
+      kind: Kamelet
+      apiVersion: camel.apache.org/v1alpha1
+      name: jms-amqp-10-source-custom
+    properties:
+      destinationName: "source-queue"
+      remoteURI: "amqp://source-broker-amqp-acceptor-0-svc:5672"
+  sink:
+    ref:
+      apiVersion: camel.apache.org/v1alpha1
+      kind: Kamelet
+      name: jms-amqp-10-sink-custom
+    properties:
+      destinationName: "target-queue"  
+      remoteURI: "amqp://target-broker-amqp-acceptor-0-svc:5672"
