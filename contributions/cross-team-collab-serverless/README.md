@@ -7,4 +7,5 @@ Goal is to introduce eventing to the scenario. A new consumer/integration that i
 
 examples
 KafkaSource->Stage2 Sink
-KafkaSource->Knative Channel->Stage2 Subscriber
+
+KafkaSource->Knative Channel->Stage2 Subscriber (with a channel you can have multiple serverless event-driven-integrations)
