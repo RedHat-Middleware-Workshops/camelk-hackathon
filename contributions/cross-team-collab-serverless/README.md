@@ -9,7 +9,8 @@ Run through the regular demo
 
 Goal is to introduce eventing to the scenario. A new consumer/integration that is event-driven/reactive can be spun up on-demand. In this example, Stage 2, which processes messages from the `questions` topic will be modified. A `KafkaSource` will trigger the integration on-demand
 
-## Scenarios  (see scripts/stage2-knative.sh for instructons):
+## Scenarios:
+see scripts/stage2-knative.sh for instructons
 
 **KafkaSource->Stage2 Sink**
 In this example, you have one integration to spin up on demand when a message is posted to the Kafka Topic. The `KafkaSource` sink is configured as the Knative Service, which in this case is the modified version of the Stage2 integration.
