@@ -5,6 +5,8 @@
     kamel run stage-2-kafka2mail-knative.xml -d camel-jackson (dev mode)
  -->
 
+ <!-- credit to dvanbalen https://github.com/dvanbalen/simple-camelk-service/blob/main/camelk/rest-service.xml-->
+
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://camel.apache.org/schema/spring"
         xsi:schemaLocation="
@@ -13,7 +15,9 @@
 
 	<!-- Kafka consumer to collect all the questions -->
     <route id="consumer">
-        <from uri="kafka:questions?brokers=my-cluster-kafka-bootstrap:9092&amp;autoOffsetReset=earliest"/>
+        <!-- <from uri="kafka:questions?brokers=my-cluster-kafka-bootstrap:9092&amp;autoOffsetReset=earliest"/> -->
+		<from uri="rest:post:questions?consumes=application/json"/>
+		<!-- <from uri="rest:post"/> -->
         <log message="${body}"/>
 
         <unmarshal>
