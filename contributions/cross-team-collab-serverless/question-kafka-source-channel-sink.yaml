@@ -1,0 +1,19 @@
+apiVersion: sources.knative.dev/v1beta1
+kind: KafkaSource
+metadata:
+  name: questions-kafka-source-v2
+spec:
+  consumerGroup: knative-group-v2
+  bootstrapServers:
+  - my-cluster-kafka-bootstrap.demo-camelk.svc:9092
+  topics:
+  - questions
+  sink:
+    # ref:
+    #   apiVersion: messaging.knative.dev/v1
+    #   kind: Channel
+    #   name: questions-channel
+    ref:
+      apiVersion: messaging.knative.dev/v1beta1
+      kind: KafkaChannel
+      name: questions-kafka-channel
