@@ -13,10 +13,12 @@ Goal is to introduce eventing to the scenario. A new consumer/integration that i
 see scripts/stage2-knative.sh for instructons
 
 **KafkaSource->Stage2 Sink**
+
 In this example, you have one integration to spin up on demand when a message is posted to the Kafka Topic. The `KafkaSource` sink is configured as the Knative Service, which in this case is the modified version of the Stage2 integration.
 
 **KafkaSource->Knative Channel->Stage2 Subscriber**
-There might be a case where multiple serverless integrations are required based on the event on the Kafka Topic. Each KafkaSource has a unique consumer group so to avoid multiple `KafkaSources`, a knative-eventing `Channel` can be utilized. Multiple Knative Services can then **subscribe** to the Channel. If there needs to be any filtering and routing of events knative-eventing `Brokers` and `Triggers` should be used.
+
+There might be a case where multiple serverless integrations are required based on the event on the Kafka Topic. Each KafkaSource has a unique consumer group so to avoid multiple `KafkaSources`, a knative-eventing `Channel` can be utilized as the `KafkaSource` sink. Multiple Knative Services can then *subscribe* to the Channel. If there needs to be any filtering and routing of events knative-eventing `Brokers` and `Triggers` should be used.
 
 
 ## Other considerations
