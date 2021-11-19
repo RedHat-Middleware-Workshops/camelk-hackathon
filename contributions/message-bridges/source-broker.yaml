@@ -1,0 +1,35 @@
+apiVersion: broker.amq.io/v2alpha5
+kind: ActiveMQArtemis
+metadata:
+  name: source-broker
+  namespace: amq-message-bridge
+spec:
+  acceptors:
+    - expose: true
+      name: amqp-acceptor
+      port: 5672
+      protocols: amqp
+  addressSettings:
+    addressSetting:
+      - autoCreateQueues: true
+  adminPassword: password1!
+  adminUser: admin
+  console:
+    expose: true
+  deploymentPlan:
+    size: 1
+    requireLogin: true
+    podSecurity: {}
+    resources: {}
+    readinessProbe: {}
+    messageMigration: false
+    extraMounts: {}
+    managementRBACEnabled: true
+    livenessProbe: {}
+    journalType: nio
+    clustered: false
+    image: placeholder
+    storage: {}
+  upgrades:
+    enabled: false
+    minor: false
