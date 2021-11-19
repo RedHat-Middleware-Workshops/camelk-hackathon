@@ -6,6 +6,8 @@
 
     # example payload
     # ["5","After our recent aq?","Architecture"]
+     # ["6","Are the systems down?","Operations"]
+      # ["7","Did you deliver the changes?","Development"]
 
 
 #event display - in case your kafka source is sinking to the event display

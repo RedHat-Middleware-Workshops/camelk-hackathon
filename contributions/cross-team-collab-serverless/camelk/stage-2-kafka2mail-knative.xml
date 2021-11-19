@@ -16,8 +16,11 @@
 	<!-- Kafka consumer to collect all the questions -->
     <route id="consumer">
         <!-- <from uri="kafka:questions?brokers=my-cluster-kafka-bootstrap:9092&amp;autoOffsetReset=earliest"/> -->
-		<from uri="rest:post:questions?consumes=application/json"/>
-		<!-- <from uri="rest:post"/> -->
+	    <!-- this is the proper from command, we should set the content type-->
+		<!-- <from uri="rest:post:/?consumes=application/json"/> -->
+
+		<!-- however for testing purposes when we use kakfka-producer to post to topic the content type isn't set-->
+		<from uri="rest:post:/"/>
         <log message="${body}"/>
 
         <unmarshal>

@@ -7,12 +7,8 @@ kamel run --name stage2-knative  camelk/stage-2-kafka2mail-knative.xml -d camel-
 
 #apply kafkaSouce
 
-#add subscription if channel was used (can also make the association via the dev console )
-
-
-#current issue --> pod spins up but doesn't get the message
+#add subscription if channel was used (can also make the association via the dev console - by moving the "sink" )
 
 
 #test via rest
-curl -X POST -H "content-type: application/json" -d '[ "5", "After our recent aq?", "Architecture" ]'  http://stage2-knative-demo-camelk.apps.cluster-0f5d.0f5d.sandbox1327.opentlc.com/questions
-#curl -X POST -H "content-type: application/json" -d '[ "5", "After our recent aq?", "Architecture" ]'  http://stage2-knative-demo-camelk.apps.cluster-0f5d.0f5d.sandbox1327.opentlc.com/
+curl -X POST -H "content-type: application/json" -d '[ "5", "After our recent aq?", "Architecture" ]'  http://stage2-knative-demo-camelk.apps.cluster-0f5d.0f5d.sandbox1327.opentlc.com/
