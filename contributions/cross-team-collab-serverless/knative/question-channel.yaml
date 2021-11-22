@@ -1,0 +1,12 @@
+#this can also be a kafka channel, using in memory for now
+apiVersion: messaging.knative.dev/v1
+kind: Channel
+metadata:
+  name: questions-channel
+  namespace: demo-camelk
+  labels:
+    app: questions
+    app.kubernetes.io/instance: questions-channel
+    app.kubernetes.io/component: questions-channel
+    app.kubernetes.io/name: questions-channel
+spec: {}

@@ -1,0 +1,22 @@
+# Test KafkaSource to view the messages
+apiVersion: sources.knative.dev/v1beta1
+kind: KafkaSource
+metadata:
+  name: questions-kafka-source-event-display
+  namespace: demo-camelk
+spec:
+  consumerGroup: knative-group-event-display
+  bootstrapServers:
+  - my-cluster-kafka-bootstrap.demo-camelk.svc:9092
+  topics:
+  - questions
+  # sink:
+  #   ref: #change to knative service
+  #     apiVersion: serving.knative.dev/v1
+  #     kind: Service
+  #     name: stage2-knative
+  sink:
+    ref: #change to knative service
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: event-display
