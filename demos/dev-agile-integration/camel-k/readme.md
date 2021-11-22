@@ -28,7 +28,7 @@ To have Camel K up and running, follow the installation instructions here:
 
 1. Now complete the PDF service flow by copying the Camel definition from the Fuse demo. Everything remains as-is, except for the `from` element and a `dataformat` command. The route definition should initiate looking like:
     ```xml
-    <from uri="undertow:http://0.0.0.0:8080/add"/>
+    <from uri="platform-http:/add"/>
     <to uri="dataformat:json-jackson:unmarshal"/>
     ```
 
@@ -39,7 +39,7 @@ To have Camel K up and running, follow the installation instructions here:
 1. Once running, open a new terminal and fire a request with the following curl command:
 
     ```shell
-    curl -X POST --header 'Content-Type: application/json' --header 'Accept: text/plain' -d '{  "docName":"camel-k-document", "docContent":"from Camel K secret content" }' 'http://routes-kamel.apps.tele-acc4.openshiftworkshop.com/add'
+    curl -X POST --header 'Content-Type: application/json' --header 'Accept: text/plain' -d '{  "docName":"camel-k-document", "docContent":"from Camel K secret content" }' 'http://`oc get route routes -o jsonpath='{..spec.host}'`/add'
     ```
 
 If successful, you should find the PDF document uploaded in the FTP Server:
