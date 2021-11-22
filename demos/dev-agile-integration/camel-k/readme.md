@@ -45,3 +45,5 @@ To have Camel K up and running, follow the installation instructions here:
 If successful, you should find the PDF document uploaded in the FTP Server:
 
 ![](images/ftp-upload.png)
+
+Note: make sure you have setup the FTP server as described [here](https://github.com/RedHat-Middleware-Workshops/camelk-hackathon/blob/master/demos/dev-agile-integration/fuse-online/readme.md#ftp-server) and updated the credentials in the `routes.xml`
