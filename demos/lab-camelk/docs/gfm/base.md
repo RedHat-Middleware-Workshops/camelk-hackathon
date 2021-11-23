@@ -44,15 +44,17 @@ To load the image into *Openshift* run the command:
 
     oc import-image fuse7-java-openshift:1.4 \
     --from=registry.redhat.io/fuse7/fuse-java-openshift:1.4 \
-    --reference-policy='local' \
+    --reference-policy='local' --comfirm \
     -n openshift
 
 If you're using Fuse 7.9 on JDK 11 run the command:
 
     oc import-image fuse-java-openshift-jdk11-rhel8:1.9 \
     --from=registry.redhat.io/fuse7/fuse-java-openshift-jdk11-rhel8:1.9 \
-    --reference-policy='local' \
+    --reference-policy='local' --confirm \
     -n openshift
+    
+*Note*: you may have to be logged in as cluster-admin to import the fuse image to the `openshift` namespace
 
 </br>
 

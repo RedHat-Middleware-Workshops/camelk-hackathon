@@ -81,19 +81,17 @@ The very first step into Camel-K is to install the Operator for Camel-K.
 
 ## Install Camel-K client
 
+Click in the webconsole the `+` sign at the top right corner and select `Commad line tools`
+
+![command line](../images/lab01/ocp-command-line.png)
+
 Download the Camel-K client that corresponds to your machine's architecture.
 
-Follow the link below to find the client version used to test this lab:
+![download](../images/lab01/ocp-download-kamel.png)
 
-- https://github.com/apache/camel-k/releases/tag/0.3.4
+If on Mac or Linux unzip where desired its contents with the following command:
 
-If for instance you're running a Mac, download the following file:
-
-- camel-k-client-0.3.4-mac-64bit.tar.gz
-
-and unzip where desired its contents with the following command:
-
-    tar zxvf camel-k-client-0.3.4-mac-64bit.tar.gz
+    tar zxvf <name of kamel cli tar>
 
 Then, ensure you configure your path by executing the following command from where `kamel` is located:
 
