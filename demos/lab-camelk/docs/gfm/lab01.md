@@ -81,6 +81,10 @@ The very first step into Camel-K is to install the Operator for Camel-K.
 
 ## Install Camel-K client
 
+Click in the webconsole the `+` sign at the top right corner and select `Commad line tools`
+
+![](images/lab01/ocp-command-line.png)
+
 Download the Camel-K client that corresponds to your machine's architecture.
 
 Follow the link below to find the client version used to test this lab:
