@@ -2,7 +2,7 @@
 
 This repository contains all the sources showcased in the following Red Hat Developers article:
 
- - https://developers.redhat.com/articles/2021/10/08/north-api-exposure-camel-k-and-atlasmap
+ - https://developers.redhat.com/articles/2021/11/24/normalize-web-services-camel-k-and-atlasmap-part-1
 
 ## Context
 
